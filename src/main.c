@@ -1,6 +1,6 @@
 /**
  * @file main.c
- * @brief SDL2 frontend of the QChip8 Emulator.
+ * @brief SDL2 frontend of the CHIP8 Emulator.
  *
  * All the emulation logic lives in chip8_cpu.c / chip8_system.c, which do
  * not depend on any graphics library. This file only renders the display
@@ -14,22 +14,9 @@
 #include <SDL.h>
 
 #include "chip8_system.h"
+#include "phosphor.h"
 
 #define DEFAULT_PIXEL_SIZE 8 /**< Default size of a CHIP-8 pixel, in screen pixels. */
-
-/*
- * Phosphor persistence parameters.
- *
- * CHIP-8 games move sprites by erasing and redrawing them (DXYN draws with
- * XOR), so the display buffer briefly holds an "erased" state. Presenting a
- * frame at that exact moment makes sprites flicker. To avoid it, a pixel
- * that turns off keeps full brightness for PHOSPHOR_HOLD_MS (long enough to
- * bridge the erase/redraw gap of sprites that stay in place, like the PONG
- * paddles) and then fades out quickly over PHOSPHOR_FADE_MS (short enough
- * that moving sprites, like the PONG ball, leave no visible trail).
- */
-#define PHOSPHOR_HOLD_MS 70 /**< Full-brightness hold time after a pixel turns off. */
-#define PHOSPHOR_FADE_MS 40 /**< Fade-out duration after the hold period. */
 
 /**
  * @brief Color theme: background and pixel colors.
@@ -103,10 +90,8 @@ static void resize_window(SDL_Window *window, int pixel_size)
 /**
  * @brief Renders the CHIP-8 display with the given theme.
  *
- * Applies a phosphor persistence effect: a pixel that turns off keeps full
- * brightness for PHOSPHOR_HOLD_MS and then fades out over PHOSPHOR_FADE_MS,
- * avoiding the flicker caused by the XOR-based sprite drawing of CHIP-8
- * games without leaving long trails behind moving sprites.
+ * Applies the phosphor persistence effect (see phosphor.h) to avoid the
+ * flicker caused by the XOR-based sprite drawing of CHIP-8 games.
  *
  * @param renderer SDL renderer.
  * @param sys System instance.
@@ -115,18 +100,16 @@ static void resize_window(SDL_Window *window, int pixel_size)
 static void render_display(SDL_Renderer *renderer, const Chip8System *sys,
                            const Theme *theme)
 {
-    /* Time each pixel has been off, in milliseconds, saturated at the
-     * total persistence time */
-    static uint16_t off_ms[DISPLAY];
+    static Phosphor phosphor;
     static Uint64 last_render;
-
-    const uint16_t persistence = PHOSPHOR_HOLD_MS + PHOSPHOR_FADE_MS;
-    const bool *display = chip8_system_get_display(sys);
 
     /* Time elapsed since the last rendered frame */
     Uint64 now = SDL_GetTicks64();
-    unsigned elapsed = last_render ? (unsigned)(now - last_render) : persistence;
+    unsigned elapsed = last_render ? (unsigned)(now - last_render)
+                                   : PHOSPHOR_HOLD_MS + PHOSPHOR_FADE_MS;
     last_render = now;
+
+    phosphor_update(&phosphor, chip8_system_get_display(sys), elapsed);
 
     SDL_SetRenderDrawColor(renderer, theme->background.r, theme->background.g,
                            theme->background.b, theme->background.a);
@@ -146,24 +129,7 @@ static void render_display(SDL_Renderer *renderer, const Chip8System *sys,
         int mult = y << 6; /* * 64 */
 
         for (int x = 0; x < DISPLAY_W; x++) {
-            int i = mult + x;
-            uint8_t alpha;
-
-            if (display[i]) {
-                off_ms[i] = 0;
-            } else if (elapsed >= (unsigned)(persistence - off_ms[i])) {
-                off_ms[i] = persistence;
-            } else {
-                off_ms[i] += elapsed;
-            }
-
-            if (off_ms[i] <= PHOSPHOR_HOLD_MS) {
-                alpha = 0xFF;
-            } else if (off_ms[i] >= persistence) {
-                alpha = 0;
-            } else {
-                alpha = (uint8_t)(0xFF * (persistence - off_ms[i]) / PHOSPHOR_FADE_MS);
-            }
+            uint8_t alpha = phosphor_alpha(&phosphor, mult + x);
 
             if (alpha > 0) {
                 SDL_FRect rect = {x * pixel_w, y * pixel_h, pixel_w, pixel_h};
@@ -220,7 +186,7 @@ int main(int argc, char *argv[])
     }
 
     SDL_Window *window =
-        SDL_CreateWindow("QChip8 Emulator",
+        SDL_CreateWindow("CHIP8 Emulator",
                          SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
                          DISPLAY_W * DEFAULT_PIXEL_SIZE,
                          DISPLAY_H * DEFAULT_PIXEL_SIZE,

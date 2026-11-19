@@ -1,40 +1,79 @@
-# QChip8-Emulator
+# CHIP8 Emulator
 
-[![PlatformIO CI (Tests & ESP32 Build)](https://github.com/mstuttgart/qchip8-emulator/actions/workflows/ci.yml/badge.svg)](https://github.com/mstuttgart/qchip8-emulator/actions/workflows/ci.yml) ![GitHub License](https://img.shields.io/github/license/mstuttgart/qchip8-emulator)
+[![CI](https://github.com/mstuttgart/chip8-emulator/actions/workflows/ci.yml/badge.svg)](https://github.com/mstuttgart/chip8-emulator/actions/workflows/ci.yml) ![GitHub License](https://img.shields.io/github/license/mstuttgart/chip8-emulator)
 
-The QChip8 Emulator is a freeware open source RCA COSMAC VIP emulator and CHIP-8 interpreter for 
-Microsoft Windows and GNU Linux, written in C. The emulator core (`src/chip8_cpu.c` and `src/chip8_system.c`)
-has no dependency on any graphics library; the SDL2 frontend (`src/main.c`) is responsible for rendering the
-display and forwarding keyboard input. QChip8 Emulator may be freely distributed, 
+The CHIP8 Emulator is a freeware open source RCA COSMAC VIP emulator and CHIP-8 interpreter for 
+GNU Linux, written in C. The emulator core (`src/chip8_cpu.c` and `src/chip8_system.c`)
+has no dependency on any graphics library; two frontends are provided: an SDL2 one (`src/main.c`),
+driven by the command line, and a GTK4 GUI (`src/gtk/main.c`) with menus and a native file chooser.
+CHIP8 Emulator may be freely distributed, 
 not for commercial purposes.If you want to reuse anything, go ahead, as long as you credit me, and your project is open source too.
 
 <p align="center">
-<a name="top" href="https://github.com/mstuttgart/qchip8-emulator"><img src="image/invaders_01.png"></a>
+<a name="top" href="https://github.com/mstuttgart/chip8-emulator"><img src="assets/invaders_01.png"></a>
 </p>
 
+## Downloads
+
+Precompiled binaries for Linux are available on the
+[Releases page](https://github.com/mstuttgart/chip8-emulator/releases).
+
+Download the appropriate archive, extract it, and run the SDL2 or GTK4 binary
+for your environment.
+
+<p align="center">
+<a name="top" href="https://github.com/mstuttgart/chip8-emulator"><img src="assets/invaders_02.png"></a>
+</p>
 
 ## Compiling
 
-Make sure the SDL2 development libraries are installed:
+Make sure the SDL2 development libraries are installed. The GTK4 development libraries
+are optional: when present, the GTK4 GUI frontend is built as well.
 
 ```
-* In Ubuntu/Debian: sudo apt-get install libsdl2-dev
-* In Fedora: dnf install SDL2-devel
-* In Arch Linux: pacman -S sdl2
+* In Ubuntu/Debian: sudo apt-get install libsdl2-dev libgtk-4-dev
+* In Fedora: dnf install SDL2-devel gtk4-devel
+* In Arch Linux: pacman -S sdl2 gtk4
 ```
 
-Now you can compile by running:
+Compile all available targets:
 
 ```bash
 make
 ```
 
-This builds both the emulator (`chip8-emulator`) and the disassembler (`chip8-disassembler`).
-You can now simply run QChip8 Emulator passing a ROM file:
+This builds the SDL2 emulator (`chip8-emulator`), the GTK4 GUI (`chip8-emulator-gtk`,
+if GTK4 is available) and the disassembler (`chip8-disassembler`).
+
+### SDL2 frontend
+
+Install the SDL2 development package and build the command-line frontend:
 
 ```bash
+# Ubuntu/Debian
+sudo apt-get update
+sudo apt-get install build-essential pkg-config libsdl2-dev
+
+make chip8-emulator
 ./chip8-emulator "CHIP8 Roms/PONG"
 ```
+
+### GTK4 frontend
+
+Install GTK4 in addition to SDL2 and build the graphical frontend:
+
+```bash
+# Ubuntu/Debian
+sudo apt-get update
+sudo apt-get install build-essential pkg-config libgtk-4-dev
+
+make chip8-emulator-gtk
+./chip8-emulator-gtk
+```
+
+The GTK4 application can be launched without arguments and a ROM can be opened
+from **File > Open ROM image** (`Ctrl+O`). It also accepts a ROM path as an
+optional argument.
 
 ## Testing
 
@@ -44,10 +83,6 @@ dependencies. Run them with:
 ```bash
 make test
 ```
-
-<p align="center">
-<a name="top" href="https://github.com/mstuttgart/qchip8-emulator"><img src="image/invaders_02.png"></a>
-</p>
 
 ### Keyboard Configuration
 
@@ -63,11 +98,12 @@ Keyboard configuration in CHIP and it respective in PC keyboard:
 
 * Space: start emulation (after a hard reset)
 * P: pause/resume emulation
+* Ctrl+O: open ROM image (GTK4 GUI only)
 * Ctrl+U: soft machine reset
 * Ctrl+R: hard machine reset (reload ROM)
 * Ctrl+1 / Ctrl+2 / Ctrl+3: window size x0.5 / x1 / x2
 * F1 - F5: color themes (Default, TELMAC/COSMAP, HP48, YellowBlues, LaraG)
-* Ctrl+Q or Esc: exit emulator
+* Ctrl+Q (or Esc in the SDL2 frontend): exit emulator
 
 ## Documentation
 

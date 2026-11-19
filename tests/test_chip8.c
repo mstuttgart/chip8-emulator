@@ -11,6 +11,7 @@
 
 #include "chip8_cpu.h"
 #include "chip8_system.h"
+#include "phosphor.h"
 
 static int assertions_failed = 0;
 static int tests_run = 0;
@@ -681,6 +682,40 @@ static void test_system_timers_only_when_running(void)
     ASSERT_EQ(4, sys.cpu.delay_timer);
 }
 
+static void test_phosphor_hold_and_fade(void)
+{
+    Phosphor ph;
+    bool display[DISPLAY] = {false};
+
+    /* After init all pixels are fully faded out */
+    phosphor_init(&ph);
+    ASSERT_EQ(0, phosphor_alpha(&ph, 0));
+
+    /* A lit pixel has full brightness */
+    display[0] = true;
+    phosphor_update(&ph, display, 16);
+    ASSERT_EQ(0xFF, phosphor_alpha(&ph, 0));
+
+    /* Within the hold period the pixel keeps full brightness */
+    display[0] = false;
+    phosphor_update(&ph, display, PHOSPHOR_HOLD_MS);
+    ASSERT_EQ(0xFF, phosphor_alpha(&ph, 0));
+
+    /* During the fade period the brightness decreases */
+    phosphor_update(&ph, display, PHOSPHOR_FADE_MS / 2);
+    ASSERT_TRUE(phosphor_alpha(&ph, 0) > 0);
+    ASSERT_TRUE(phosphor_alpha(&ph, 0) < 0xFF);
+
+    /* After the fade period the pixel is off */
+    phosphor_update(&ph, display, PHOSPHOR_FADE_MS);
+    ASSERT_EQ(0, phosphor_alpha(&ph, 0));
+
+    /* Turning the pixel back on restores full brightness */
+    display[0] = true;
+    phosphor_update(&ph, display, 16);
+    ASSERT_EQ(0xFF, phosphor_alpha(&ph, 0));
+}
+
 static void test_system_key_forwarding(void)
 {
     Chip8System sys;
@@ -735,6 +770,7 @@ int main(void)
     RUN_TEST(test_system_step_only_when_running);
     RUN_TEST(test_system_timers_only_when_running);
     RUN_TEST(test_system_key_forwarding);
+    RUN_TEST(test_phosphor_hold_and_fade);
 
     printf("\n%d tests run, %d assertions failed\n", tests_run, assertions_failed);
 

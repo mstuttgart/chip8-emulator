@@ -4,7 +4,7 @@ Chip8-Disassemblar
 Introduction
 ===============
 
-The Chip8 Disassembler command line tool to disassemble bytecode of CHIP-8 interpreter. Work in Microsoft Windows and GNU Linux. QChip8 Emulator may be freely distributed, not for commercial purposes.If you want to reuse anything, go ahead, as long as you credit me, and your project is open source too.
+The Chip8 Disassembler command line tool to disassemble bytecode of CHIP-8 interpreter. Work in Microsoft Windows and GNU Linux. CHIP8 Emulator may be freely distributed, not for commercial purposes.If you want to reuse anything, go ahead, as long as you credit me, and your project is open source too.
 
 Compiling
 ==============

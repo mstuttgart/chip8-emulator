@@ -14,4 +14,5 @@
 
 build/
 chip8-emulator
+chip8-emulator-gtk
 chip8-disassembler
