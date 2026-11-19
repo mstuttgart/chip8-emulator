@@ -13,10 +13,15 @@ Make sure the "build essentials" and essentials packages of compilation:
 
 * In Ubuntu/Debian: sudo apt-get install build-essential checkinstall cdbs devscripts dh-make fakeroot libxml-parser-perl check avahi-daemon -y
 
-Now you can compile by running in terminal:
+Now you can compile by running in terminal (from the repository root):
 
-	$ g++ main.cpp chip8_disassembler.cpp chip8_disassembler.hpp -o main -std=c++11
-    $ ./main chipfile.ch8
+	$ make
+    $ ./chip8-disassembler chipfile.ch8
+
+or manually:
+
+	$ gcc main.c chip8_disassembler.c -o chip8-disassembler -std=c99
+    $ ./chip8-disassembler chipfile.ch8
 
 where "chipfile.ch8" is a bytecode file of chip8 interpreter.
 

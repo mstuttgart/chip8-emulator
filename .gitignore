@@ -1,4 +1,4 @@
-# C++ objects and libs
+# C objects and libs
 
 *.slo
 *.lo
@@ -10,19 +10,8 @@
 *.dll
 *.dylib
 
-# Qt-es
+# Build output
 
-/.qmake.cache
-/.qmake.stash
-*.pro.user
-*.pro.user.*
-*.moc
-moc_*.cpp
-qrc_*.cpp
-ui_*.h
-Makefile*
-*-build-*
-
-# QtCreator
-
-*.autosave
+build/
+chip8-emulator
+chip8-disassembler
