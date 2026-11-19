@@ -31,9 +31,9 @@ Make sure the SDL2 development libraries are installed. The GTK4 development lib
 are optional: when present, the GTK4 GUI frontend is built as well.
 
 ```
-* In Ubuntu/Debian: sudo apt-get install libsdl2-dev libgtk-4-dev
-* In Fedora: dnf install SDL2-devel gtk4-devel
-* In Arch Linux: pacman -S sdl2 gtk4
+* In Ubuntu/Debian: sudo apt-get install build-essential pkg-config libsdl2-dev libgtk-4-dev
+* In Fedora: sudo dnf install gcc make pkg-config SDL2-devel gtk4-devel
+* In Arch Linux: sudo pacman -S base-devel pkgconf sdl2 gtk4
 ```
 
 Compile all available targets:
@@ -125,7 +125,7 @@ tracker. Be as precise as possible so that the bug can be found easier. Thanks!
 
 ## About
 
-Copyright (C) 2014-2026 by Michell Stuttgart Faria
+Copyright © 2014-2026 Michell Stuttgart Faria
 
-Internal RCA COSMAC VIP Operating System, CHIP-8 interpreters (C) Joseph Weisbecker 1977-1990(?)
+Historical attribution: the COSMAC VIP operating system and CHIP-8 interpreters were developed by Joseph Weisbecker.
 
